@@ -7,10 +7,25 @@ const API_URL =
 const API_KEY =
   "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1ZWI4NDEwMGRiMDQ0ZjYxNGFmMGZlZDZlZTg5ZWI5NSIsInN1YiI6IjY0NGI1MjQzNTFhNjRlMDkyMmRkMWQ4OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.1l37cs6saTuprI3wLNlQfvshnNEg5Z9WeMQOLxRwZPY";
 
+function MovieDetail({ movie }) {
+  return (
+    <div className="movie-detail">
+      <img
+        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+        alt={movie.title}
+      />
+      <h2>{movie.title}</h2>
+      <p>Rating: {movie.vote_average}</p>
+      <p>{movie.overview}</p>
+    </div>
+  );
+}
+
 function App() {
   const [movies, setMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   useEffect(() => {
     fetchMovies(API_URL);
@@ -52,8 +67,6 @@ function App() {
       .then((response) => {
         setSearchResults(response.data.results);
         setMovies([]);
-        // window.location.reload();
-        // console.log(setSearchResults);
       })
       .catch((error) => {
         console.error(error);
@@ -61,9 +74,13 @@ function App() {
   };
 
   const fetchMoreMovies = () => {
-    const nextPage = movies.length / 20 + 1; // Ganti 20 dengan jumlah film per halaman yang diberikan oleh API
+    const nextPage = movies.length / 20 + 1;
     const nextUrl = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${nextPage}`;
     fetchMovies(nextUrl);
+  };
+
+  const handleMovieClick = (movie) => {
+    setSelectedMovie(movie);
   };
 
   return (
@@ -78,36 +95,48 @@ function App() {
         />
         <button type="submit">Search</button>
       </form>
-      <InfiniteScroll
-        dataLength={movies.length}
-        next={fetchMoreMovies}
-        hasMore={true}
-        loader={<h4>Loading...</h4>}
-      >
-        <div className="movies">
-          {searchResults.length > 0
-            ? searchResults.map((movie) => (
-                <div key={movie.id} className="movie">
-                  <img
-                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                    alt={movie.title}
-                  />
-                  <h3>{movie.title}</h3>
-                  <p>{movie.overview}</p>
-                </div>
-              ))
-            : movies.map((movie) => (
-                <div key={movie.id} className="movie">
-                  <img
-                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                    alt={movie.title}
-                  />
-                  <h3>{movie.title}</h3>
-                  <p>{movie.overview}</p>
-                </div>
-              ))}
-        </div>
-      </InfiniteScroll>
+      {selectedMovie ? (
+        <MovieDetail movie={selectedMovie} />
+      ) : (
+        <InfiniteScroll
+          dataLength={movies.length}
+          next={fetchMoreMovies}
+          hasMore={true}
+          loader={<h4>Loading...</h4>}
+        >
+          <div className="movies">
+            {searchResults.length > 0
+              ? searchResults.map((movie) => (
+                  <div
+                    key={movie.id}
+                    className="movie"
+                    onClick={() => handleMovieClick(movie)}
+                  >
+                    <img
+                      src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                      alt={movie.title}
+                    />
+                    <h3>{movie.title}</h3>
+                    <p>{movie.overview}</p>
+                  </div>
+                ))
+              : movies.map((movie) => (
+                  <div
+                    key={movie.id}
+                    className="movie"
+                    onClick={() => handleMovieClick(movie)}
+                  >
+                    <img
+                      src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                      alt={movie.title}
+                    />
+                    <h3>{movie.title}</h3>
+                    <p>{movie.overview}</p>
+                  </div>
+                ))}
+          </div>
+        </InfiniteScroll>
+      )}
     </div>
   );
 }
