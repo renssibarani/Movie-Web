@@ -1,0 +1,23 @@
+.movies {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.movie {
+  width: 200px;
+  margin: 10px;
+}
+
+.movie img {
+  width: 100%;
+  height: auto;
+}
+
+.movie h3 {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.movie p {
+  font-size: 14px;
+}
